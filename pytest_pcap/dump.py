@@ -1,11 +1,15 @@
 import os
 import re
+import sys
 import select
 import threading
 import errno
-import Queue
 from subprocess import Popen, PIPE, CalledProcessError
 from .pcap import Pcap, MAXIMUM_SNAPLEN
+if sys.version_info >= (3, 0):
+    import queue
+else:
+    import Queue as queue
 
 
 class Dump(object):
@@ -53,7 +57,7 @@ class PcapDump(Dump):
             raise RuntimeError("dump is already running!")
 
         self._stop_event = threading.Event()
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._thread = threading.Thread(target=self._capture)
         self._thread.daemon = True
         self._thread.start()
