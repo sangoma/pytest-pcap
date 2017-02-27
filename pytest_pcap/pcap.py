@@ -349,7 +349,7 @@ class Pcap(object):
 
     @classmethod
     def open_live(cls, device, snaplen, promisc, to_ms):
-        handle = lib.pcap_create(device, Pcap.errbuf)
+        handle = lib.pcap_create(device.encode(), Pcap.errbuf)
         if handle == ffi.NULL:
             raise PcapError(ffi.string(Pcap.errbuf))
         if lib.pcap_set_snaplen(handle, snaplen) < 0:
