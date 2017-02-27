@@ -311,7 +311,7 @@ def dumper_dispatch(user, header, data):
 class Dumper(object):
     def __init__(self, handle, filename):
         self.handle = handle
-        self.dumpfile = lib.pcap_dump_open(self.handle, filename)
+        self.dumpfile = lib.pcap_dump_open(self.handle, filename.encode())
         if not self.dumpfile:
             raise PcapError.fromhandle(self.handle)
 
