@@ -366,7 +366,7 @@ class Pcap(object):
     @classmethod
     def open_offline(cls, filename):
         handle = lib.pcap_open_offline_with_tstamp_precision(
-            filename,
+            filename.encode(),
             lib.PCAP_TSTAMP_PRECISION_MICRO,
             Pcap.errbuf
         )
