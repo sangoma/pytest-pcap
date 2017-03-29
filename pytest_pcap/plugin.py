@@ -14,10 +14,8 @@ def pytest_addoption(parser):
                     help="set a retention policy on all pcap captures")
 
 
-@pytest.hookimpl(tryfirst=True)
-def pytest_runtest_setup(item):
+def setup_capture(item):
     if item.get_marker('nocapture'):
-        item.config.capture = None
         return
 
     storage = item.config.pluginmanager.getplugin('storage').get_storage(item)
@@ -26,19 +24,20 @@ def pytest_runtest_setup(item):
 
     policy = item.config.getoption('--pcap-retention')
     capture.preserve = bool(policy == 'always')
+    return capture
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_protocol(item, nextitem):
+    capture = setup_capture(item)
     item.config.capture = capture
-
-
-@pytest.hookimpl(trylast=True)
-def pytest_runtest_teardown(item, nextitem):
-    # Stop the capture at the end of each test. We'll decide if we
-    # want to keep it in a later hook because fixture cleanup still
-    # happens after this point.
-    capture = getattr(item.config, 'capture', None)
+    yield
     if capture:
         capture.stop()
         pytest.log.info('{} recieved by filter, '
                         '{} dropped by kernel'.format(*capture.stats))
+        if not capture.preserve:
+            capture.delete()
 
 
 def pytest_runtest_makereport(item, call):
@@ -49,14 +48,6 @@ def pytest_runtest_makereport(item, call):
     policy = item.config.getoption('--pcap-retention')
     if call.excinfo and policy == 'on-failure':
         item.config.capture.preserve = True
-
-
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_protocol(item, nextitem):
-    yield
-    capture = getattr(item.config, 'capture', None)
-    if capture and not capture.preserve:
-        capture.delete()
 
 
 @pytest.fixture
