@@ -371,7 +371,7 @@ class Pcap(object):
             Pcap.errbuf
         )
         if not handle:
-            raise PcapError(Pcap.errbuf.value)
+            raise PcapError(ffi.string(Pcap.errbuf))
 
         return cls(handle)
 
@@ -401,14 +401,14 @@ class Pcap(object):
     def nonblocking(self):
         ret = lib.pcap_getnonblock(self.handle, self.errbuf)
         if ret == -1:
-            raise PcapError(self.errbuf.value)
+            raise PcapError(ffi.string(self.errbuf))
         return bool(ret)
 
     @nonblocking.setter
     def nonblocking(self, value):
         ret = lib.pcap_setnonblock(self.handle, value, self.errbuf)
         if ret == -1:
-            raise PcapError(self.errbuf.value)
+            raise PcapError(ffi.string(self.errbuf))
 
     def fileno(self):
         return lib.pcap_get_selectable_fd(self.handle)
