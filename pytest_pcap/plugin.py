@@ -58,3 +58,21 @@ def local_trace(request):
         return request.config.capture
     except AttributeError:
         pytest.fail('Failed to launch packet capture')
+
+
+@pytest.hookimpl
+def pytest_get_trace(item):
+    try:
+        return item.config.capture
+    except AttributeError:
+        pytest.fail('Failed to launch packet capture')
+
+
+@pytest.hookimpl
+def pytest_addhooks(pluginmanager):
+    class PcapHooks:
+        @pytest.hookspec(firstresult=True)
+        def pytest_get_trace(item):
+            pass
+
+    pluginmanager.add_hookspecs(PcapHooks())
