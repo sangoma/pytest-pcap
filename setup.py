@@ -24,10 +24,11 @@ setup(
                  'Programming Language :: Python :: Implementation :: PyPy',
                  'Topic :: Software Development :: Testing',
                  'Topic :: Utilities'],
-    extras_require={
-        'build': ['pycparser', 'cffi'],
-    },
+    setup_requires=[
+        'cffi>=1.0.0',
+    ],
     install_requires=[
+        'cffi>=1.0.0',
         'pytest>=2.6.0',
     ],
     cffi_modules=[
